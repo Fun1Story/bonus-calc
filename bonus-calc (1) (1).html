@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0a0a0a">
+<title>Bonus Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0a0a0a;--card:#141414;--card2:#1a1a1a;
+  --accent:#c8f55a;--accent2:#a8d940;--accent-dim:rgba(200,245,90,.12);
+  --text:#f0f0f0;--text2:#888;--text3:#555;
+  --red:#ff4d4d;--red-dim:rgba(255,77,77,.12);
+  --green:#4ade80;--green-dim:rgba(74,222,128,.12);
+  --border:rgba(255,255,255,.06);
+  --radius:14px;--radius-sm:10px;
+  --font:'Inter',system-ui,sans-serif;
+  --mono:'JetBrains Mono','SF Mono',monospace;
+}
+html,body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:15px;line-height:1.4;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+.app{max-width:480px;margin:0 auto;padding:16px 16px 80px}
+
+.quote{background:linear-gradient(135deg,rgba(255,60,60,.15),rgba(255,120,60,.08));border:1px solid rgba(255,80,60,.2);border-radius:var(--radius);padding:12px 16px;font-size:13px;color:#ff9966;margin-bottom:20px;text-align:center;font-weight:500}
+
+.section-label{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:8px}
+
+.grade-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px}
+.grade-pill{padding:7px 14px;border-radius:999px;border:1px solid var(--border);background:transparent;color:var(--text2);font-size:13px;cursor:pointer;font-family:var(--font);transition:all .15s}
+.grade-pill.active{background:var(--accent);color:#111;border-color:var(--accent);font-weight:600}
+.grade-pill:active{transform:scale(.96)}
+
+.monthly-input{background:var(--card);border-radius:var(--radius);padding:16px;margin-bottom:16px}
+.monthly-input .section-label{margin-bottom:12px}
+.input-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.input-group label{display:block;font-size:10px;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);margin-bottom:4px}
+.input-group input{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;color:var(--text);font-family:var(--mono);font-size:16px;outline:none;transition:border-color .15s}
+.input-group input:focus{border-color:var(--accent)}
+.input-group input::placeholder{color:var(--text3)}
+
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.ccard{background:var(--card);border-radius:var(--radius);padding:14px 16px;position:relative;overflow:hidden}
+.ccard::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.ccard.old::before{background:var(--text3)}
+.ccard.new::before{background:var(--accent)}
+.ccard-label{font-size:10px;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);margin-bottom:10px}
+.ccard-total{font-family:var(--mono);font-size:22px;font-weight:700;margin-bottom:2px;color:var(--text)}
+.ccard-sub{font-size:11px;color:var(--text3);margin-bottom:12px}
+.ccard-rows{border-top:1px solid var(--border);padding-top:10px;display:flex;flex-direction:column;gap:6px}
+.crow{display:flex;justify-content:space-between;font-size:12px}
+.crow .cl{color:var(--text3)}
+.crow .cv{font-family:var(--mono);font-weight:500;color:var(--text2)}
+
+.diff-badge{border-radius:var(--radius-sm);padding:10px;text-align:center;font-size:13px;font-weight:500;margin-bottom:20px}
+.diff-badge.pos{background:var(--green-dim);color:var(--green)}
+.diff-badge.neg{background:var(--red-dim);color:var(--red)}
+.diff-badge.neutral{background:var(--card);color:var(--text3)}
+
+.bonus-card{background:linear-gradient(135deg,rgba(200,245,90,.08),rgba(200,245,90,.02));border:1px solid rgba(200,245,90,.15);border-radius:var(--radius);padding:16px;margin-bottom:20px}
+.bonus-card-label{font-size:10px;letter-spacing:.8px;text-transform:uppercase;color:var(--accent2);margin-bottom:8px}
+.bonus-card-total{font-family:var(--mono);font-size:28px;font-weight:700;color:var(--accent)}
+.bonus-card-hint{font-size:12px;color:var(--text3);margin-top:6px}
+
+.progress-section{margin-bottom:20px}
+.progress-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.progress-label{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--text3)}
+.progress-val{font-family:var(--mono);font-size:12px;color:var(--text2)}
+.progress-bar{height:4px;background:var(--card2);border-radius:2px;overflow:hidden}
+.progress-fill{height:100%;background:var(--accent);border-radius:2px;transition:width .4s ease}
+
+.roi-hint{font-size:11px;color:var(--text3);margin-bottom:20px;padding:0 4px}
+
+.tiers-title{font-size:14px;font-weight:600;margin-bottom:10px}
+.tier{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;padding:10px 14px;border-radius:var(--radius-sm);margin-bottom:4px;background:var(--card);font-size:13px;transition:all .2s}
+.tier.current{background:var(--accent-dim);border:1px solid rgba(200,245,90,.25)}
+.tier-range{color:var(--text2)}
+.tier.current .tier-range{color:var(--text)}
+.tier-badge{font-size:9px;letter-spacing:.5px;padding:3px 8px;border-radius:999px;background:var(--accent);color:#111;font-weight:700;text-transform:uppercase}
+.tier-pct{font-family:var(--mono);font-weight:600;min-width:36px;text-align:right;color:var(--text2)}
+.tier.current .tier-pct{color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="quote" id="quote"></div>
+
+  <div class="section-label">Грейд (старая сетка)</div>
+  <div class="grade-row" id="grades">
+    <button class="grade-pill" data-g="junior">Джун</button>
+    <button class="grade-pill active" data-g="middle">Мидл</button>
+    <button class="grade-pill" data-g="senior">Сеньор</button>
+    <button class="grade-pill" data-g="senior_plus">Сеньор+</button>
+    <button class="grade-pill" data-g="expert">Эксперт</button>
+  </div>
+
+  <div class="monthly-input">
+    <div class="section-label">Итого за месяц</div>
+    <div class="input-row">
+      <div class="input-group"><label>Профит ₽</label><input type="number" id="in-profit" placeholder="0" inputmode="numeric"></div>
+      <div class="input-group"><label>ROI %</label><input type="number" id="in-roi" placeholder="25" step="0.1" inputmode="decimal"></div>
+    </div>
+  </div>
+
+  <div class="compare">
+    <div class="ccard old">
+      <div class="ccard-label">Старая сетка</div>
+      <div class="ccard-total" id="o-total">0 ₽</div>
+      <div class="ccard-sub" id="o-sub">Мидл</div>
+      <div class="ccard-rows">
+        <div class="crow"><span class="cl">Оклад</span><span class="cv" id="o-salary">—</span></div>
+        <div class="crow"><span class="cl">Ставка</span><span class="cv" id="o-rate">6%</span></div>
+        <div class="crow"><span class="cl">Бонус</span><span class="cv" id="o-bonus">0 ₽</span></div>
+      </div>
+    </div>
+    <div class="ccard new">
+      <div class="ccard-label">Новая сетка</div>
+      <div class="ccard-total" id="n-total">40 000 ₽</div>
+      <div class="ccard-sub" id="n-sub">$500 + 0%</div>
+      <div class="ccard-rows">
+        <div class="crow"><span class="cl">Оклад</span><span class="cv" id="n-salary">40 000 ₽</span></div>
+        <div class="crow"><span class="cl">База</span><span class="cv" id="n-base">0%</span></div>
+        <div class="crow"><span class="cl">ROI корр.</span><span class="cv" id="n-adj">+0%</span></div>
+        <div class="crow"><span class="cl">Итог</span><span class="cv" id="n-rate">0%</span></div>
+        <div class="crow"><span class="cl">Бонус</span><span class="cv" id="n-bonus">0 ₽</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="diff-badge neutral" id="diff">Внеси данные — увидишь разницу</div>
+
+  <div class="bonus-card">
+    <div class="bonus-card-label">Твой бонус (новая)</div>
+    <div class="bonus-card-total" id="bc-total">0 ₽</div>
+    <div class="bonus-card-hint" id="bc-hint">Внеси данные — увидишь бонус</div>
+  </div>
+
+  <div class="progress-section">
+    <div class="progress-header">
+      <span class="progress-label">До следующего тира</span>
+      <span class="progress-val" id="prog-val">—</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+  </div>
+
+  <div class="roi-hint">ROI&lt;15%: −2% | ROI&lt;20%: −1% | ROI&gt;30%: +1% | ROI&gt;40%: +2%</div>
+
+  <div class="tiers-title">Сетка бонусов</div>
+  <div id="tiers"></div>
+
+</div>
+
+<script>
+(function(){
+const USD=80,NEW_SAL=500,NEW_SAL_R=NEW_SAL*USD;
+const TIERS=[
+  {mn:0,mx:5e5,p:0,l:'0 — 500к'},{mn:5e5,mx:1e6,p:10,l:'500к — 1 млн'},
+  {mn:1e6,mx:1.5e6,p:12,l:'1 — 1.5 млн'},{mn:1.5e6,mx:2e6,p:14,l:'1.5 — 2 млн'},
+  {mn:2e6,mx:3e6,p:16,l:'2 — 3 млн'},{mn:3e6,mx:4e6,p:17,l:'3 — 4 млн'},
+  {mn:4e6,mx:5e6,p:18,l:'4 — 5 млн'},{mn:5e6,mx:6e6,p:19,l:'5 — 6 млн'},
+  {mn:6e6,mx:1e7,p:20,l:'6 — 10 млн'},{mn:1e7,mx:Infinity,p:22,l:'10 млн+'}
+];
+const GRADES={
+  junior:{n:'Джун',s:500,p:6,tp:0,tt:Infinity},
+  middle:{n:'Мидл',s:600,p:6,tp:3,tt:1e6},
+  senior:{n:'Сеньор',s:800,p:8,tp:3,tt:1.5e6},
+  senior_plus:{n:'Сеньор+',s:1000,p:9,tp:3,tt:2.5e6},
+  expert:{n:'Эксперт',s:1200,p:10,tp:4,tt:3.5e6}
+};
+const EXTRA=[{t:8e6,b:1},{t:1e7,b:1},{t:13e6,b:1},{t:15e6,b:2},{t:2e7,b:2}];
+const QUOTES=[
+  'Твои отговорки не конвертят.',
+  'ROI не врёт — ты или зарабатываешь, или нет.',
+  'Профит не ждёт — действуй.',
+  'Каждый день без данных — потерянный инсайт.',
+  'Деньги любят учёт.',
+  'Бонус не капает сам — заливай.',
+];
+
+let grade='middle';
+try{const s=localStorage.getItem('bc_grade');if(s)grade=s;}catch(e){}
+document.querySelectorAll('#grades .grade-pill').forEach(p=>p.classList.toggle('active',p.dataset.g===grade));
+
+function fmt(n){return Math.round(n).toLocaleString('ru-RU')+' ₽'}
+function fmtK(n){return n>=1e6?(n/1e6).toFixed(1)+' млн':n>=1e3?Math.round(n/1e3)+'к':Math.round(n)}
+
+function calc(){
+  const profit=parseFloat(document.getElementById('in-profit').value)||0;
+  const roiVal=document.getElementById('in-roi').value;
+  const roi=roiVal===''?null:parseFloat(roiVal);
+
+  document.getElementById('quote').textContent='\u00AB'+QUOTES[Math.floor(Date.now()/86400000)%QUOTES.length]+'\u00BB';
+
+  const g=GRADES[grade];
+  let oRate=g.p;if(profit>=g.tt)oRate+=g.tp;
+  const oBonus=profit>0?profit*oRate/100:0,oSal=g.s*USD,oTot=oSal+oBonus;
+
+  document.getElementById('o-total').textContent=fmt(oTot);
+  document.getElementById('o-sub').textContent=g.n;
+  document.getElementById('o-salary').textContent=fmt(oSal)+' ($'+g.s+')';
+  document.getElementById('o-rate').textContent=oRate+'%';
+  document.getElementById('o-bonus').textContent=fmt(oBonus);
+
+  const tier=TIERS.find(t=>profit>=t.mn&&profit<t.mx)||TIERS[0];
+  let base=tier.p,ra=0;
+  if(roi!=null&&!isNaN(roi)&&base>0){
+    if(roi<15)ra=-2;else if(roi<20)ra=-1;else if(roi>40)ra=2;else if(roi>30)ra=1;
+  }
+  let ex=0;
+  if(['senior','senior_plus','expert'].includes(grade))
+    EXTRA.forEach(e=>{if(profit>=e.t)ex+=e.b});
+  const finalR=Math.max(0,base+ra+ex);
+  const nBonus=profit>0?profit*finalR/100:0,nTot=NEW_SAL_R+nBonus;
+
+  document.getElementById('n-total').textContent=fmt(nTot);
+  document.getElementById('n-sub').textContent='$'+NEW_SAL+' + '+finalR+'%';
+  document.getElementById('n-salary').textContent=fmt(NEW_SAL_R)+' ($'+NEW_SAL+')';
+  document.getElementById('n-base').textContent=base+'%';
+  const adj=ra+ex;
+  document.getElementById('n-adj').textContent=(adj>=0?'+':'')+adj+'%';
+  document.getElementById('n-rate').textContent=finalR+'%';
+  document.getElementById('n-bonus').textContent=fmt(nBonus);
+
+  const diff=nTot-oTot,de=document.getElementById('diff');
+  if(profit===0){de.className='diff-badge neutral';de.textContent='Внеси данные — увидишь разницу';}
+  else{de.className='diff-badge '+(diff>=0?'pos':'neg');de.textContent=(diff>=0?'Новая больше':'Новая меньше')+' на '+fmt(Math.abs(diff))+(diff>0?' \u2191':diff<0?' \u2193':'');}
+
+  document.getElementById('bc-total').textContent=fmt(nBonus);
+  document.getElementById('bc-hint').textContent=profit>0?tier.l+' \u00B7 '+finalR+'%'+(roi!=null?' \u00B7 ROI '+roi.toFixed(1)+'%':''):'Внеси данные — увидишь бонус';
+
+  const ci=TIERS.findIndex(t=>profit>=t.mn&&profit<t.mx);
+  const ct=TIERS[ci]||TIERS[0];
+  const pv=document.getElementById('prog-val'),pf=document.getElementById('prog-fill');
+  if(ci<TIERS.length-1){
+    const left=ct.mx-profit;
+    const pct=ct.mx===Infinity?100:Math.min(100,Math.round((profit-ct.mn)/(ct.mx-ct.mn)*100));
+    pv.textContent='\u0435\u0449\u0451 '+fmtK(Math.max(0,left))+' \u20BD';
+    pf.style.width=pct+'%';
+  }else{pv.textContent='\u041C\u0430\u043A\u0441 \u0442\u0438\u0440';pf.style.width='100%';}
+
+  document.getElementById('tiers').innerHTML=TIERS.map(t=>{
+    const cur=profit>0&&profit>=t.mn&&profit<t.mx;
+    return'<div class="tier'+(cur?' current':'')+'"><span class="tier-range">'+t.l+'</span>'+(cur?'<span class="tier-badge">\u0421\u0435\u0439\u0447\u0430\u0441</span>':'<span></span>')+'<span class="tier-pct">'+t.p+'%</span></div>';
+  }).join('');
+}
+
+calc();
+
+document.getElementById('grades').onclick=e=>{
+  const p=e.target.closest('.grade-pill');if(!p)return;
+  grade=p.dataset.g;
+  document.querySelectorAll('#grades .grade-pill').forEach(b=>b.classList.toggle('active',b===p));
+  try{localStorage.setItem('bc_grade',grade)}catch(e){}
+  calc();
+};
+
+document.getElementById('in-profit').addEventListener('input',calc);
+document.getElementById('in-roi').addEventListener('input',calc);
+})();
+</script>
+</body>
+</html>
